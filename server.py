@@ -10,12 +10,12 @@ class Server():
 if __name__ == "__main__":
     cherrypy_cors.install()
     server = Server()
-    cherrypy.config.update({"server.socket_host": "0.0.0.0"})
-    cherrypy.config.update(
-        {
+    config = {
+        "/": {
+            "server.socket_host": "0.0.0.0",
             "server.socket_port": int(os.environ.get("PORT", "8080")),
-            'cors.expose.on': True,
+            "cors.expose.on": True,
         }
-    )
+    }
     print("Starting Bad Chess Server...")
-    cherrypy.quickstart(server)
+    cherrypy.quickstart(server, config=config)
