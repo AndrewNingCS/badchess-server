@@ -5,7 +5,7 @@ import cherrypy_cors
 class Server():
     @cherrypy.expose
     def index(self):
-        return "Server is up and running"
+        return { "data": "Server is up and running" }
 
 if __name__ == "__main__":
     cherrypy_cors.install()
