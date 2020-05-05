@@ -309,9 +309,10 @@ class King(Piece):
         ]
 
         for m in possible:
-            valid_dest = occupied[m.y][m.x] == enemy or occupied[m.y][m.x] == E
-            if m.in_grid(w, h) and valid_dest:
-                moves.append(Move(self.pos, m))
+            if m.in_grid(w, h):
+                valid_dest = occupied[m.y][m.x] == enemy or occupied[m.y][m.x] == E
+                if valid_dest:
+                    moves.append(Move(self.pos, m))
 
         return moves
 
