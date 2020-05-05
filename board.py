@@ -111,9 +111,7 @@ class Board():
         for i, p in enumerate(to_change):
             if p.pos == move.f:
                 p.update_pos(move.t)
-                log(p.name)
                 if p.name == "Pawn":
-                    log(f"{player}, {p.pos.to_string()}")
                     if player == 1 and p.y == 0:
                         to_change.append(Queen(p.pos, True))
                         to_change.pop(i)
