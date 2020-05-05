@@ -28,14 +28,18 @@ class Server():
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def single_player_move(self):
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
         # json input should have game_id, move_from, and move_to fields
-        data = cherrypy.request.json
-        gid = data["game_id"]
-        move_from = data["move_from"]
-        move_to = data["move_to"]
-        self.games[gid].single_player_move(move_from, move_to)
-        
-        return self.games[gid].to_JSON()
+            print(cherrypy.request.method)
+            data = cherrypy.request.json
+            gid = data["game_id"]
+            move_from = data["move_from"]
+            move_to = data["move_to"]
+            self.games[gid].single_player_move(move_from, move_to)
+            
+            return self.games[gid].to_JSON()
 
 
     @cherrypy.expose
