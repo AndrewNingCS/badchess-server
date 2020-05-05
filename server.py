@@ -3,9 +3,13 @@ import cherrypy
 import cherrypy_cors
 import time
 
+from game import Game
+
 class Server():
     def __init__(self):
-        self.games = {}
+        self.games = {
+            "test": Game(0)
+        }
 
     @cherrypy.expose
     def index(self):
@@ -16,23 +20,23 @@ class Server():
     def create_single_player_game(self):
         # create unique game ID (maybe based off time?)
         gid = int(time.time())
+        self.games[gid] = Game(gid)
 
-        # send back game state data with game ID
-        game_state = {
-            "game_id": gid,
-            "board": [
-                [["R", False], ["H", False], ["B", False], ["K", False], ["Q", False], ["B", False], ["H", False], ["R", False]],
-                [["P", False], ["P", False], ["P", False], ["P", False], ["P", False], ["P", False], ["P", False], ["P", False]],
-                [["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True]],
-                [["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True]],
-                [["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True]],
-                [["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True], ["N", True]],
-                [["P", True], ["P", True], ["P", True], ["P", True], ["P", True], ["P", True], ["P", True], ["P", True]],
-                [["R", True], ["H", True], ["B", True], ["K", True], ["Q", True], ["B", True], ["H", True], ["R", True]]
-            ]
-        }
+        return self.games[gid].to_JSON()
 
-        return game_state
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def single_player_move(self):
+        # json input should have game_id, move_from, and move_to fields
+        data = cherrypy.request.json
+        gid = data["game_id"]
+        move_from = data["move_from"]
+        move_to = data["move_to"]
+        self.games[gid].single_player_move(move_from, move_to)
+        
+        return self.games[gid].to_JSON()
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
