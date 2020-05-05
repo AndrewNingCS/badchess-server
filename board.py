@@ -111,6 +111,11 @@ class Board():
         for p in to_change:
             if p.pos == move.f:
                 p.update_pos(move.t)
+                if p.name == "Pawn":
+                    if player == 1 and p.y == 0:
+                        p = Queen(p.pos, True)
+                    elif player == 2 and p.y == 7:
+                        p = Queen(p.pos, False)
 
 
     def to_JSON(self):

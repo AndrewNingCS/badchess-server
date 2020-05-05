@@ -149,6 +149,7 @@ class Pawn(Piece):
     def __init__(self, pos, is_white):
         super().__init__(pos, is_white)
         self.name = "Pawn"
+        self.initial_pos = pos
 
     def possible_moves(self, occupied):
         w = len(occupied[0])
@@ -163,8 +164,9 @@ class Pawn(Piece):
 
             if up_one.in_grid(w, h) and occupied[up_one.y][up_one.x] == E:
                 moves.append(Move(self.pos, up_one))
-            if up_two.in_grid(w, h) and occupied[up_two.y][up_two.x] == E:
-                moves.append(Move(self.pos, up_two))
+                if self.pos == self.initial_pos:
+                    if up_two.in_grid(w, h) and occupied[up_two.y][up_two.x] == E:
+                        moves.append(Move(self.pos, up_two))
             if diag_left.in_grid(w, h) and occupied[diag_left.y][diag_left.x] == B:
                 moves.append(Move(self.pos, diag_left))
             if diag_right.in_grid(w, h) and occupied[diag_right.y][diag_right.x] == B:
