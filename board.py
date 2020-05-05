@@ -108,14 +108,19 @@ class Board():
             if p.pos == move.t:
                 dead_pile.append(to_remove.pop(i)) # piece is eaten
                 break
-        for p in to_change:
+        for i, p in enumerate(to_change):
             if p.pos == move.f:
                 p.update_pos(move.t)
+                log(p.name)
                 if p.name == "Pawn":
+                    log(f"{player}, {p.pos.to_string()}")
                     if player == 1 and p.y == 0:
-                        p = Queen(p.pos, True)
+                        to_change.append(Queen(p.pos, True))
+                        to_change.pop(i)
                     elif player == 2 and p.y == 7:
-                        p = Queen(p.pos, False)
+                        to_change.append(Queen(p.pos, False))
+                        to_change.pop(i)
+                    break
 
 
     def to_JSON(self):
