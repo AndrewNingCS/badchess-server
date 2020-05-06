@@ -310,23 +310,9 @@ class King(Piece):
                     moves.append(Move(self.pos, m, board[m.y][m.x]))
 
         # king can also castle
-        if not self.has_moved:
-            if self.is_white:
-                row = h - 1
-            else:
-                row = 0
-            log(f"Row: {row}")
-            rook_exists = board[row][w-1] is not None and isinstance(board[row][w-1], Rook)
-            log(f"rook: {rook_exists}")
-            nothing_between = board[row][w-2] is None and board[row][w-3] is None
-            log(f"nothing: {nothing_between}")
-            if rook_exists and nothing_between:
-                log("here")
-                if not board[row][w-1].has_moved:
-                    log("here2")
-                    castle = Move(self.pos, self.pos.right().right())
-                    castle.is_castle = True
-                    moves.append(castle)
+        move_castle = Move(self.pos, self.pos.right().right())
+        if self.is_castle(board, move_castle):
+            moves.append(move_castle)
 
         return moves
 

@@ -77,8 +77,6 @@ class Board():
         
         # get all possible moves of piece
         moves = piece.possible_moves(self.board)
-        for m in moves:
-            m.log()
 
         if move in moves: # valid move
             return True
@@ -143,6 +141,29 @@ class Board():
     # Returns true if player two is in check (king under attack)
     def player_two_in_check(self):
         pass
+
+    def possible_moves_JSON(self):
+        json = []
+        for row in self.board:
+            t = []
+            for piece in row:
+                e = []
+                if piece is not None:
+                    moves = piece.possible_moves(self.board)
+                    for m in moves:
+                        e.append([m.t.x, m.t.y])
+                t.append(e)
+            json.append(t)
+
+        return json
+
+    def dead_pieces_JSON(self):
+        json = {
+            "white_dead": [p.to_JSON() for p in self.white_dead],
+            "black_dead": [p.to_JSON() for p in self.black_dead]
+        }
+
+        return json
 
 
     def to_JSON(self):

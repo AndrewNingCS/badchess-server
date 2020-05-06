@@ -35,11 +35,20 @@ class AI():
     def beginner_move(self, board):
         all_moves = []
 
+        # get all moves
         for row in board:
             for piece in row:
                 if piece is not None and not piece.is_white:
                     all_moves += piece.possible_moves(board)
 
+        # keep the moves that can kill something
+        kill_moves = [m for m in all_moves if m.eating_move]
+
+        # if there is at least one such move, return a random one
+        if kill_moves:
+            return random.choice(kill_moves)
+
+        # no kill moves, return random move
         return random.choice(all_moves)
 
     def intermediate_move(self, board):
