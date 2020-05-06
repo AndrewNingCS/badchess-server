@@ -27,7 +27,7 @@ class Game():
         self.invalid_move = False
 
         # AI now makes a move
-        AI_move = self.AI.make_move(self.board) # TODO: what if nothing is returned
+        AI_move = self.AI.make_move(self.board.board) # TODO: what if nothing is returned
         self.board.make_move(2, AI_move)
 
     def to_JSON(self):

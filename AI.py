@@ -30,12 +30,15 @@ class AI():
         if self.level == HARD:
             return self.hard_move(board)
 
-    # Beginner level: Returns a random move from all possible moves
+    # Beginner level: Returns a move that will eat another piece.
+    # if no such move exists, will return a random move
     def beginner_move(self, board):
-        board.set_occupied_grid()
         all_moves = []
-        for p in board.black_pieces:
-            all_moves += p.possible_moves(board.occupied)
+
+        for row in board:
+            for piece in row:
+                if piece is not None and not piece.is_white:
+                    all_moves += piece.possible_moves(board)
 
         return random.choice(all_moves)
 

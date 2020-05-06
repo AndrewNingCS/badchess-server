@@ -1,10 +1,6 @@
 from utility import Coord, Move
 from log import log
 
-E = 0 # empty
-W = 1 # white
-B = 2 # black
-
 class Piece():
     def __init__(self, pos, is_white):
         self.pos = pos
@@ -18,54 +14,48 @@ class Piece():
         self.y = pos.y
 
     def possible_moves(self, occupied):
-        # return all moves
-        ret = []
-        for x in range(len(occupied[0])):
-            for y in range(len(occupied)):
-                ret.append(Move(Coord(self.x, self.y), Coord(x, y)))
-        return ret
+        # default, should never be called
+        return []
 
-    def possible_straight_moves(self, occupied):
-        w = len(occupied[0])
-        h = len(occupied)
+    # Returns all moves from current position in all 4 straight directions
+    def possible_straight_moves(self, board):
+        w = len(board[0])
+        h = len(board)
         moves = []
 
-        your_team = B
-        enemy = W
-        if self.is_white:
-            your_team = W
-            enemy = B
-
         # go in all 4 directions until you hit the wall, enemy, or your own team
-        # left
+        # go left
         cur = self.pos.left()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white: # hit enemy piece
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white: # hit own piece
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.left()
 
-        # right
+        # go right
         cur = self.pos.right()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.right()
 
-        # up
+        # go up
         cur = self.pos.up()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.up()
@@ -73,35 +63,32 @@ class Piece():
         # down
         cur = self.pos.down()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.down()
 
         return moves
 
-    def possible_diagonal_moves(self, occupied):
-        w = len(occupied[0])
-        h = len(occupied)
+    # Returns all moves from the current position in all 4 diagonal directions
+    def possible_diagonal_moves(self, board):
+        w = len(board[0])
+        h = len(board)
         moves = []
-
-        your_team = B
-        enemy = W
-        if self.is_white:
-            your_team = W
-            enemy = B
 
         # go in all 4 diagonals until you hit the wall, enemy, or your own team
         # left up diagonal
         cur = self.pos.left().up()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.left().up()
@@ -109,10 +96,11 @@ class Piece():
         # left down diagonal
         cur = self.pos.left().down()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.left().down()
@@ -120,10 +108,11 @@ class Piece():
         # right up diagonal
         cur = self.pos.right().up()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.right().up()
@@ -131,10 +120,11 @@ class Piece():
         # right down diagonal
         cur = self.pos.right().down()
         while cur.in_grid(w, h):
-            if occupied[cur.y][cur.x] == enemy:
-                moves.append(Move(self.pos, cur))
+            has_piece = board[cur.y][cur.x] is not None
+            if has_piece and board[cur.y][cur.x].is_white != self.is_white:
+                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
                 break
-            if occupied[cur.y][cur.x] == your_team:
+            if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
             moves.append(Move(self.pos, cur))
             cur = cur.right().down()
@@ -151,40 +141,39 @@ class Pawn(Piece):
         self.name = "Pawn"
         self.initial_pos = pos
 
-    def possible_moves(self, occupied):
-        w = len(occupied[0])
-        h = len(occupied)
+    def possible_moves(self, board):
+        w = len(board[0])
+        h = len(board)
         moves = []
         
         if self.is_white:
-            up_one = self.pos.up()
-            up_two = up_one.up()
-            diag_left = up_one.left()
-            diag_right = up_one.right()
-
-            if up_one.in_grid(w, h) and occupied[up_one.y][up_one.x] == E:
-                moves.append(Move(self.pos, up_one))
-                if self.pos == self.initial_pos:
-                    if up_two.in_grid(w, h) and occupied[up_two.y][up_two.x] == E:
-                        moves.append(Move(self.pos, up_two))
-            if diag_left.in_grid(w, h) and occupied[diag_left.y][diag_left.x] == B:
-                moves.append(Move(self.pos, diag_left))
-            if diag_right.in_grid(w, h) and occupied[diag_right.y][diag_right.x] == B:
-                moves.append(Move(self.pos, diag_right))
+            move_one = self.pos.up()
+            move_two = move_one.up()
         else:
-            down_one = self.pos.down()
-            down_two = down_one.down()
-            diag_left = down_one.left()
-            diag_right = down_one.right()
+            move_one = self.pos.down()
+            move_two = move_one.down()
+        dl = move_one.left()  # diagonal left
+        dr = move_one.right() # diagonal right
 
-            if down_one.in_grid(w, h) and occupied[down_one.y][down_one.x] == E:
-                moves.append(Move(self.pos, down_one))
-            if down_two.in_grid(w, h) and occupied[down_two.y][down_two.x] == E:
-                moves.append(Move(self.pos, down_two))
-            if diag_left.in_grid(w, h) and occupied[diag_left.y][diag_left.x] == W:
-                moves.append(Move(self.pos, diag_left))
-            if diag_right.in_grid(w, h) and occupied[diag_right.y][diag_right.x] == W:
-                moves.append(Move(self.pos, diag_right)) 
+        # check if anything is in front of the pawn
+        if move_one.in_grid(w, h) and board[move_one.y][move_one.x] is None:
+            moves.append(Move(self.pos, move_one))
+            if self.pos == self.initial_pos:
+                # if pawn is in inital position, and nothing in front, we check two spaces forward
+                if move_two.in_grid(w, h) and board[move_two.y][move_two.x] is None:
+                    moves.append(Move(self.pos, move_two))
+
+        # check the left diagonal. Must be occupied by enemy piece
+        if dl.in_grid(w, h) and board[dl.y][dl.x] is not None:
+            diag_left_enemy = not board[dl.y][dl.x].is_white == self.is_white
+            if diag_left_enemy:
+                moves.append(Move(self.pos, dl, board[dl.y][dl.x]))
+        
+        # check the right diagonal. Must be occupied by enemy piece
+        if dr.in_grid(w, h) and board[dr.y][dr.x] is not None:
+            diag_right_enemy = not board[dr.y][dr.x].is_white == self.is_white
+            if diag_right_enemy:
+                moves.append(Move(self.pos, dr, board[dr.y][dr.x]))
 
         return moves
         
@@ -200,9 +189,14 @@ class Rook(Piece):
     def __init__(self, pos, is_white):
         super().__init__(pos, is_white)
         self.name = "Rook"
+        self.has_moved = False
 
-    def possible_moves(self, occupied):
-        return super().possible_straight_moves(occupied)
+    def update_pos(self, pos):
+        super().update_pos(pos)
+        self.has_moved = True
+
+    def possible_moves(self, board):
+        return super().possible_straight_moves(board)
 
     def log(self):
         log(f"{self.name} at {self.pos.to_string()}")
@@ -216,14 +210,10 @@ class Horse(Piece):
         super().__init__(pos, is_white)
         self.name = "Horse"
 
-    def possible_moves(self, occupied):
-        w = len(occupied[0])
-        h = len(occupied)
+    def possible_moves(self, board):
+        w = len(board[0])
+        h = len(board)
         moves = []
-
-        enemy = W
-        if self.is_white:
-            enemy = B
 
         possible = [
             self.pos.left().left().up(),
@@ -238,8 +228,10 @@ class Horse(Piece):
 
         for m in possible:
             if m.in_grid(w, h):
-                if occupied[m.y][m.x] == enemy or occupied[m.y][m.x] == E:
+                if board[m.y][m.x] is None:
                     moves.append(Move(self.pos, m))
+                elif board[m.y][m.x].is_white != self.is_white:
+                    moves.append(Move(self.pos, m, board[m.y][m.x]))
 
         return moves
 
@@ -287,18 +279,18 @@ class King(Piece):
     def __init__(self, pos, is_white):
         super().__init__(pos, is_white)
         self.name = "King"
+        self.has_moved = False
 
-    def possible_moves(self, occupied):
-        w = len(occupied[0])
-        h = len(occupied)
+    def update_pos(self, pos):
+        super().update_pos(pos)
+        self.has_moved = True
+
+    def possible_moves(self, board):
+        w = len(board[0])
+        h = len(board)
         moves = []
 
-        enemy = W
-        if self.is_white:
-            enemy = B
-
         # king can move to any adjacent sq (even diags)
-        # TODO: Castling with the Rook
         possible = [
             self.pos.left(),
             self.pos.right(),
@@ -312,11 +304,67 @@ class King(Piece):
 
         for m in possible:
             if m.in_grid(w, h):
-                valid_dest = occupied[m.y][m.x] == enemy or occupied[m.y][m.x] == E
-                if valid_dest:
+                if board[m.y][m.x] is None:
                     moves.append(Move(self.pos, m))
+                elif board[m.y][m.x].is_white != self.is_white:
+                    moves.append(Move(self.pos, m, board[m.y][m.x]))
+
+        # king can also castle
+        if not self.has_moved:
+            if self.is_white:
+                row = h - 1
+            else:
+                row = 0
+            log(f"Row: {row}")
+            rook_exists = board[row][w-1] is not None and isinstance(board[row][w-1], Rook)
+            log(f"rook: {rook_exists}")
+            nothing_between = board[row][w-2] is None and board[row][w-3] is None
+            log(f"nothing: {nothing_between}")
+            if rook_exists and nothing_between:
+                log("here")
+                if not board[row][w-1].has_moved:
+                    log("here2")
+                    castle = Move(self.pos, self.pos.right().right())
+                    castle.is_castle = True
+                    moves.append(castle)
 
         return moves
+
+    # checks if a given move on a given board is a king rook castling move
+    # will set the is_castle flag in move to True
+    def is_castle(self, board, move):
+        h = len(board)
+        w = len(board[0])
+        if self.is_white:
+            row = h - 1
+        else:
+            row = 0
+
+        # the king must not have moved previously
+        if self.has_moved:
+            return False
+
+        # rook must exist in corner position
+        rook_exists = board[row][w-1] is not None and isinstance(board[row][w-1], Rook)
+        if not rook_exists:
+            return False
+
+        # if the move is not to the left of the rook, not a castle move
+        if move.t != Coord(w-2, row):
+            return False
+
+        # needs to be nothing inbetween the king and rook
+        nothing_between = board[row][w-2] is None and board[row][w-3] is None
+        if not nothing_between:
+            return False
+
+        # the rook must not have moved before either
+        rook_moved = board[row][w-1].has_moved
+        if rook_moved:
+            return False
+
+        move.is_castle = True
+        return True
 
     def log(self):
         log(f"{self.name} at {self.pos.to_string()}")

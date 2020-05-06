@@ -32,7 +32,6 @@ class Server():
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
         # json input should have game_id, move_from, and move_to fields
-            print(cherrypy.request.method)
             data = cherrypy.request.json
             gid = data["game_id"]
             move_from = data["move_from"]

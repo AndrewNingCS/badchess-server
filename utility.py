@@ -42,9 +42,19 @@ class Coord():
 
 
 class Move():
-    def __init__(self, f, t):
+    def __init__(self, f, t, ate=None):
         self.f = f
         self.t = t
+        self.eating_move = ate is not None
+        self.eating_piece = ate
+        self.is_castle = False # is this move castling?
+
+    def set_eating_piece(self, p):
+        self.eating_move = p is not None
+        self.eating_piece = p
+
+    def log(self):
+        print(f"{self.f.to_string()} to {self.t.to_string()}")
 
     def __eq__(self, m):
         if m is None:
