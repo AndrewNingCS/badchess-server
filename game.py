@@ -80,4 +80,30 @@ class Game():
         json["dead_pieces"] = self.board.dead_pieces_JSON()
 
         return json
-                
+
+    def make_move(self, player_id, f, t):
+        # check player_id parameters
+        self.lock.acquire()
+        player_number = 0
+        if player_id == self.player1_id:
+            player_number = 1
+        else:
+            player_number = 2
+        while self.turn != player_number:
+            self.lock.wait()
+        move = Move(Coord.from_array(f), Coord.from_array(t))
+        self.board.make_move(player_number, move)
+        self.turn = self.turn%2 + 1
+        self.lock.notify()
+        self.lock.release()
+    
+    def wait_for_move(self, player_id):
+        self.lock.acquire()
+        player_number = 0
+        if player_id == self.player1_id:
+            player_number = 1
+        else:
+            player_number = 2
+        while self.turn != player_number:
+            self.lock.wait()
+        self.lock.release()
