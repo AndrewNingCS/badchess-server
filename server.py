@@ -113,6 +113,23 @@ class Server():
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
+    def leave_two_player_game(self):
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+            # WAIT JSON object
+            data = cherrypy.request.json
+            gid = data["game_id"]
+            player_id = data["player_id"]
+
+            # if no player is left, remove from memory
+            if self.game_by_game_id[gid].disconnect(player_id):
+                room_code = self.game_by_game_id[gid].room_code
+                self.game_by_game_id.pop(gid)
+                self.game_by_room_code.pop(room_code)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def make_move(self):
         # makes a move. returns new board state
