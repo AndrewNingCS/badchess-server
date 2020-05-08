@@ -179,7 +179,6 @@ class Server():
             self.game_by_game_id[gid].single_player_move(move_from, move_to)
             
             ret = self.game_by_game_id[gid].to_JSON()
-            time.sleep(10)
             return ret
 
 
