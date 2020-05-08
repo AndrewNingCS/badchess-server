@@ -10,10 +10,52 @@ class Server():
         self.games = {
             "test": Game(0)
         }
+        self.game_by_room_code = {}
 
     @cherrypy.expose
     def index(self):
         return { "data": "Server is up and running" }
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def create_two_player_game(self):
+        gid = int(time.time())
+        self.games[gid] = Game(gid)
+
+        # return a json object with
+        # - game ID
+        # - player 1 ID
+        # - room code
+
+        # store the game by room code so that player 2 can join later
+        ret = self.games[gid].create_two_player_game()
+        self.game_by_room_code[ret["room_code"]] = self.games[gid]
+
+        return ret
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def join_two_player_game(self):
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+            # find game with that ID
+            data = cherrypy.request.json
+            room_code = data["room_code"]
+
+            # does this room code exist?
+            if room_code not in self.game_by_room_code:
+                return {
+                    "game_exists": False
+                }
+
+            #
+
+            # room code exists, return the game ID and player2 ID
+            game = self.game_by_room_code[room_code]
+            return game.join_two_player_game()
+
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -38,7 +80,9 @@ class Server():
             move_to = data["move_to"]
             self.games[gid].single_player_move(move_from, move_to)
             
-            return self.games[gid].to_JSON()
+            ret = self.games[gid].to_JSON()
+            time.sleep(10)
+            return ret
 
 
     @cherrypy.expose

@@ -159,8 +159,8 @@ class Board():
 
     def dead_pieces_JSON(self):
         json = {
-            "white_dead": [p.to_JSON() for p in self.white_dead],
-            "black_dead": [p.to_JSON() for p in self.black_dead]
+            "white": [p.to_JSON() for p in self.white_dead],
+            "black": [p.to_JSON() for p in self.black_dead]
         }
 
         return json
