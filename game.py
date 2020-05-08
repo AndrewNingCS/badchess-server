@@ -56,19 +56,15 @@ class Game():
             "joined": has_joined
         }
 
-    # Disconnects a player given by the ID. Returns a bool
-    # if the other player is still connected
+    # Disconnects a player given by the ID. 
     def disconnect(self, player_id):
         if player_id == self.player1_id:
             self.player1_connected = False
-            if not self.player2_connected:
-                return False
-            return True
         else:
             self.player2_connected = False
-            if not self.player1_connected:
-                return False
-            return True
+
+    def any_connected(self):
+        return self.player1_connected and self.player2_connected
 
     # Starts the game in single player mode
     def start_single_player_game(self):
