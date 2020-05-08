@@ -56,6 +56,44 @@ class Server():
             game = self.game_by_room_code[room_code]
             return game.join_two_player_game()
 
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def make_move(self):
+        # makes a move. returns new board state
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+            data = cherrypy.request.json
+            gid = data["game_id"]
+            player_id = data["player_id"]
+            move_from = data["move_from"]
+            move_to = data["move_to"]
+
+            # TODO: check if game exists
+            self.games[gid].make_move(player_id, move_from, move_to)
+
+            ret = self.games[gid].to_JSON()
+            return ret
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def wait_for_move(self):
+        # waits for other player to make a move. blocks until a move is made
+        # returns new board state
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+            data = cherrypy.request.json
+            gid = data["game_id"]
+            player_id = data["player_id"]
+
+            # TODO: check if game exists
+            self.games[gid].wait_for_move(player_id) # this should block for at most 2 mins
+
+            ret = self.games[gid].to_JSON()
+            return ret
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

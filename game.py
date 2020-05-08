@@ -22,7 +22,7 @@ class Game():
         self.setup = False
         self.player1_connected = False
         self.player2_connected = False
-        self.started = False
+        self.started = True
         self.lock = Condition()
 
     # Sets up the two player game. Returns a json with the necessary info
