@@ -160,6 +160,8 @@ class Server():
         self.game_by_game_id[gid] = game
         self.game_by_room_code[room_code] = game
 
+        game.start_single_player_game()
+
         return self.game_by_game_id[gid].to_JSON()
 
     @cherrypy.expose

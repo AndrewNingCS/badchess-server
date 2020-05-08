@@ -56,6 +56,10 @@ class Game():
             "joined": has_joined
         }
 
+    # Starts the game in single player mode
+    def start_single_player_game(self):
+        self.started = True
+
     def single_player_move(self, f, t):
         move = Move(Coord.from_array(f), Coord.from_array(t))
 
