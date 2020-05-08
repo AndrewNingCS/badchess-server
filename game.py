@@ -64,7 +64,7 @@ class Game():
             self.player2_connected = False
 
     def any_connected(self):
-        return self.player1_connected and self.player2_connected
+        return self.player1_connected or self.player2_connected
 
     # Starts the game in single player mode
     def start_single_player_game(self):
