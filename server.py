@@ -216,27 +216,18 @@ class Server():
             return data
 
     @cherrypy.expose
-    # @cherrypy.tools.json_in()
     def stream(self):
-        # if cherrypy.request.method == 'OPTIONS':
-        #     cherrypy_cors.preflight(allowed_methods=['POST'])
-        # if cherrypy.request.method == 'POST':
         cherrypy.response.headers['Content-Type'] = 'text/event-stream'
-        # cherrypy.response.headers['Content-Type'] = 'text/plain'
 
-        # data = cherrypy.request.json
-        # gid = data["gameID"]
-
-        def streamer():
-            # game = self.game_by_game_id[gid]
-            for i in range(3):
-                time.sleep(1)
-                yield 'hello\n'
-
+        # def streamer():
+        for i in range(3):
             time.sleep(1)
-            yield 'done!\n'
+            yield 'hello\n'
 
-        return streamer()
+        time.sleep(1)
+        yield 'done!\n'
+
+        # return streamer()
         
 
     # Returns a unique int to use as a game_id
