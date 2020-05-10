@@ -215,6 +215,30 @@ class Server():
                 data["gameExists"] = "False"
             return data
 
+    @cherrypy.expose
+    # @cherrypy.tools.json_in()
+    def stream(self):
+        # if cherrypy.request.method == 'OPTIONS':
+        #     cherrypy_cors.preflight(allowed_methods=['POST'])
+        # if cherrypy.request.method == 'POST':
+        cherrypy.response.headers['Content-Type'] = 'text/event-stream'
+        cherrypy.response.headers['Content-Type'] = 'text/plain'
+
+        # data = cherrypy.request.json
+        # gid = data["gameID"]
+
+        def streamer():
+            # game = self.game_by_game_id[gid]
+            for i in range(3):
+                time.sleep(1)
+                yield 'hello\n'
+
+            time.sleep(1)
+            yield 'done!\n'
+
+        return streamer()
+        
+
     # Returns a unique int to use as a game_id
     def create_game_id(self):
         gid = int(time.time())
@@ -240,6 +264,7 @@ if __name__ == "__main__":
         "server.socket_host": "0.0.0.0",
         "server.socket_port": int(os.environ.get("PORT", "8080")),
         "cors.expose.on": True,
+        "response.stream": True,
     })
     print("Starting Bad Chess Server...")
     cherrypy.quickstart(server)
