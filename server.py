@@ -222,7 +222,7 @@ class Server():
         #     cherrypy_cors.preflight(allowed_methods=['POST'])
         # if cherrypy.request.method == 'POST':
         cherrypy.response.headers['Content-Type'] = 'text/event-stream'
-        cherrypy.response.headers['Content-Type'] = 'text/plain'
+        # cherrypy.response.headers['Content-Type'] = 'text/plain'
 
         # data = cherrypy.request.json
         # gid = data["gameID"]
