@@ -219,15 +219,15 @@ class Server():
     def stream(self):
         cherrypy.response.headers['Content-Type'] = 'text/event-stream'
 
-        # def streamer():
-        for i in range(3):
+        def streamer():
+            for i in range(3):
+                time.sleep(1)
+                yield 'data: hello\n'
+
             time.sleep(1)
-            yield 'data: hello\n'
+            yield 'data: done!\n\n'
 
-        time.sleep(1)
-        yield 'data: done!\n\n'
-
-        # return streamer()
+        return streamer()
         
 
     # Returns a unique int to use as a game_id
