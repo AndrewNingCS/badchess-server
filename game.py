@@ -118,26 +118,26 @@ class Game():
 
     def room_JSON(self, player):
         ret = {}
-        ret["game_id"] = self.game_id
+        ret["gameID"] = self.game_id
         if player == 1:
-            ret["player_id"] = self.player1_id
+            ret["playerID"] = self.player1_id
         else:
-            ret["player_id"] = self.player2_id
-        ret["room_code"] = self.room_code
+            ret["playerID"] = self.player2_id
+        ret["roomCode"] = self.room_code
 
         return ret
 
     def to_JSON(self):
         json = {}
-        json["game_started"] = self.started
+        json["gameStarted"] = self.started
         if not self.started: # if game has not started, return
             return json
-        json["game_id"] = self.game_id
-        json["invalid_move"] = self.invalid_move
-        json["player_turn"] = self.turn
+        json["gameID"] = self.game_id
+        json["invalidMove"] = self.invalid_move
+        json["playerTurn"] = self.turn
         json["board"] = self.board.to_JSON()
-        json["possible_moves"] = self.board.possible_moves_JSON()
-        json["dead_pieces"] = self.board.dead_pieces_JSON()
+        json["possibleMoves"] = self.board.possible_moves_JSON()
+        json["deadPieces"] = self.board.dead_pieces_JSON()
 
         return json
 

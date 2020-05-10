@@ -19,7 +19,7 @@ class Server():
 
     @cherrypy.expose
     def index(self):
-        return { "data": "Server is up and running" }
+        return "Server is up and running"
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -49,12 +49,12 @@ class Server():
         if cherrypy.request.method == 'POST':
             # find game with that ID
             data = cherrypy.request.json
-            room_code = data["room_code"]
+            room_code = data["roomCode"]
 
             # does this room code exist?
             if room_code not in self.game_by_room_code:
                 return {
-                    "game_exists": False
+                    "gameExists": False
                 }
 
             #
@@ -72,8 +72,8 @@ class Server():
         if cherrypy.request.method == 'POST':
             # WAIT JSON object
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
 
             # returns a JOINED JSON object
             ret = self.game_by_game_id[gid].has_player_joined(player_id)
@@ -88,8 +88,8 @@ class Server():
         if cherrypy.request.method == 'POST':
             # WAIT JSON object
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
 
             # returns a GAME STATE JSON object
             ret = self.game_by_game_id[gid].to_JSON()
@@ -104,8 +104,8 @@ class Server():
         if cherrypy.request.method == 'POST':
             # WAIT JSON object
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
 
             # returns a GAME STATE JSON object
             self.game_by_game_id[gid].start_two_player_game(player_id)
@@ -120,8 +120,8 @@ class Server():
         if cherrypy.request.method == 'POST':
             # WAIT JSON object
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
 
             # if no player is left, remove from memory
             self.game_by_game_id[gid].disconnect(player_id)
@@ -139,10 +139,10 @@ class Server():
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
-            move_from = data["move_from"]
-            move_to = data["move_to"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
+            move_from = data["moveFrom"]
+            move_to = data["moveTo"]
 
             # TODO: check if game exists
             self.game_by_game_id[gid].make_move(player_id, move_from, move_to)
@@ -160,8 +160,8 @@ class Server():
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
             data = cherrypy.request.json
-            gid = data["game_id"]
-            player_id = data["player_id"]
+            gid = data["gameID"]
+            player_id = data["playerID"]
 
             # TODO: check if game exists
             self.game_by_game_id[gid].wait_for_move(player_id) # this should block for at most 2 mins
@@ -192,9 +192,9 @@ class Server():
         if cherrypy.request.method == 'POST':
         # json input should have game_id, move_from, and move_to fields
             data = cherrypy.request.json
-            gid = data["game_id"]
-            move_from = data["move_from"]
-            move_to = data["move_to"]
+            gid = data["gameID"]
+            move_from = data["moveFrom"]
+            move_to = data["moveTo"]
             self.game_by_game_id[gid].single_player_move(move_from, move_to)
             
             ret = self.game_by_game_id[gid].to_JSON()
@@ -209,10 +209,10 @@ class Server():
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
             data = cherrypy.request.json
-            if data["game_id"] in self.game_by_game_id:
-                data["game_exists"] = "True"
+            if data["gameID"] in self.game_by_game_id:
+                data["gameExists"] = "True"
             else:
-                data["game_exists"] = "False"
+                data["gameExists"] = "False"
             return data
 
     # Returns a unique int to use as a game_id
