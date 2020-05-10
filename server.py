@@ -222,10 +222,10 @@ class Server():
         # def streamer():
         for i in range(3):
             time.sleep(1)
-            yield 'hello\n'
+            yield 'data:hello\n\n'
 
         time.sleep(1)
-        yield 'done!\n'
+        yield 'data:done!\n\n'
 
         # return streamer()
         
