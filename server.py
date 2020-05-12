@@ -167,22 +167,19 @@ class Server():
 
     @cherrypy.expose
     def wait_for_move(self):
-        # waits for other player to make a move. blocks until a move is made
-        # returns new board state, but pings every 25 seconds back to client
-        if cherrypy.request.method == 'OPTIONS':
-            cherrypy_cors.preflight(allowed_methods=['POST'])
-        if cherrypy.request.method == 'POST':
-            # get the game and player id saved in the current session
-            gid = cherrypy.session.get("gameID")
-            player_id = cherrypy.session.get("playerID")
-            log(f"Waiting for move. GID: {gid}, PID: {player_id}")
+        # get the game and player id saved in the current session
+        cherrypy.response.headers['Content-Type'] = 'text/event-stream;charset=utf-8'
+        cherrypy.response.headers['Cache-Control'] = 'no-cache'
+        gid = cherrypy.session.get("gameID")
+        player_id = cherrypy.session.get("playerID")
+        log(f"Waiting for move. GID: {gid}, PID: {player_id}")
 
-            def SSE():
-                self.game_by_game_id[gid].wait_for_move(player_id)
-                yield 'event: close\n'
-                yield 'data: connection closed\n\n'
+        def SSE():
+            self.game_by_game_id[gid].wait_for_move(player_id)
+            yield 'event: close\n'
+            yield 'data: connection closed\n\n'
 
-            return SSE()
+        return SSE()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
