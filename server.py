@@ -263,7 +263,7 @@ if __name__ == "__main__":
         "tools.sessions.on": True,
         "tools.response_headers.on": True,
         "tools.response_headers.headers": [
-            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Origin", "http://localhost:3000"),
             ("Access-Control-Allow-Credentials", "true"),
         ],
     })
