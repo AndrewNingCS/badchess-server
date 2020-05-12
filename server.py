@@ -3,6 +3,7 @@ import cherrypy
 import cherrypy_cors
 import time
 import random
+import json
 
 from game import Game
 from log import log
@@ -57,8 +58,6 @@ class Server():
                     "gameExists": False
                 }
 
-            #
-
             # room code exists, return the game ID and player2 ID
             game = self.game_by_room_code[room_code]
             return game.join_two_player_game()
@@ -74,6 +73,10 @@ class Server():
             data = cherrypy.request.json
             gid = data["gameID"]
             player_id = data["playerID"]
+
+            # save game and player ID in the current session
+            cherrypy.session["gameID"] = gid
+            cherrypy.session["playerID"] = player_id
 
             # returns a JOINED JSON object
             ret = self.game_by_game_id[gid].has_player_joined(player_id)
@@ -91,6 +94,10 @@ class Server():
             gid = data["gameID"]
             player_id = data["playerID"]
 
+            # save game and player ID in the current session
+            cherrypy.session["gameID"] = gid
+            cherrypy.session["playerID"] = player_id
+
             # returns a GAME STATE JSON object
             ret = self.game_by_game_id[gid].to_JSON()
             return ret
@@ -106,6 +113,10 @@ class Server():
             data = cherrypy.request.json
             gid = data["gameID"]
             player_id = data["playerID"]
+
+            # save game and player ID in the current session
+            cherrypy.session["gameID"] = gid
+            cherrypy.session["playerID"] = player_id
 
             # returns a GAME STATE JSON object
             self.game_by_game_id[gid].start_two_player_game(player_id)
@@ -144,6 +155,10 @@ class Server():
             move_from = data["moveFrom"]
             move_to = data["moveTo"]
 
+            # save game and player ID in the current session
+            cherrypy.session["gameID"] = gid
+            cherrypy.session["playerID"] = player_id
+
             # TODO: check if game exists
             self.game_by_game_id[gid].make_move(player_id, move_from, move_to)
 
@@ -151,23 +166,23 @@ class Server():
             return ret
 
     @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
     def wait_for_move(self):
         # waits for other player to make a move. blocks until a move is made
-        # returns new board state
+        # returns new board state, but pings every 25 seconds back to client
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
-            data = cherrypy.request.json
-            gid = data["gameID"]
-            player_id = data["playerID"]
+            # get the game and player id saved in the current session
+            gid = cherrypy.session.get("gameID")
+            player_id = cherrypy.session.get("playerID")
+            log(f"Waiting for move. GID: {gid}, PID: {player_id}")
 
-            # TODO: check if game exists
-            self.game_by_game_id[gid].wait_for_move(player_id) # this should block for at most 2 mins
+            def SSE():
+                self.game_by_game_id[gid].wait_for_move(player_id)
+                yield 'event: close\n'
+                yield 'data: connection closed\n\n'
 
-            ret = self.game_by_game_id[gid].to_JSON()
-            return ret
+            return SSE()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -215,21 +230,6 @@ class Server():
                 data["gameExists"] = "False"
             return data
 
-    @cherrypy.expose
-    def stream(self):
-        cherrypy.response.headers['Content-Type'] = 'text/event-stream'
-
-        def streamer():
-            for i in range(3):
-                time.sleep(1)
-                yield 'data: hello\n'
-
-            time.sleep(1)
-            yield 'data: done!\n\n'
-
-        return streamer()
-        
-
     # Returns a unique int to use as a game_id
     def create_game_id(self):
         gid = int(time.time())
@@ -256,6 +256,12 @@ if __name__ == "__main__":
         "server.socket_port": int(os.environ.get("PORT", "8080")),
         "cors.expose.on": True,
         "response.stream": True,
+        "tools.sessions.on": True,
+        "tools.response_headers.on": True,
+        "tools.response_headers.headers": [
+            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Credentials", "true"),
+        ],
     })
     print("Starting Bad Chess Server...")
     cherrypy.quickstart(server)

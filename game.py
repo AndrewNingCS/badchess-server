@@ -1,5 +1,6 @@
 from threading import Condition
 from random import choice
+from json import dumps
 
 from pieces import Piece
 from board import Board
@@ -105,6 +106,7 @@ class Game():
         self.lock.notify()
         self.lock.release()
     
+    # generator function
     def wait_for_move(self, player_id):
         self.lock.acquire()
         player_number = 0
@@ -113,7 +115,9 @@ class Game():
         else:
             player_number = 2
         while self.turn != player_number:
-            self.lock.wait()
+            yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
+            self.lock.wait(timeout=25)
+        yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
         self.lock.release()
 
     def room_JSON(self, player):
