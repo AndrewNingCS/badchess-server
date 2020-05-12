@@ -145,8 +145,9 @@ class Server():
             self.game_by_game_id[gid].disconnect(player_id)
             if not self.game_by_game_id[gid].any_connected():
                 room_code = self.game_by_game_id[gid].room_code
-                self.game_by_game_id.pop(gid)
+                game = self.game_by_game_id.pop(gid)
                 self.game_by_room_code.pop(room_code)
+                game.stop()
 
     @cherrypy.expose
     @cherrypy.tools.json_in()

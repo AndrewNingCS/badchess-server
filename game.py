@@ -20,6 +20,7 @@ class Game():
         self.turn = 1
         self.setup = False
         self.started = False
+        self.stopped = False
         self.lock = Condition()
         self.player1_connected = False
         self.player2_connected = False
@@ -67,6 +68,9 @@ class Game():
     def any_connected(self):
         return self.player1_connected or self.player2_connected
 
+    def stop(self):
+        self.stopped = True
+
     # Starts the game in single player mode
     def start_single_player_game(self):
         self.started = True
@@ -100,6 +104,8 @@ class Game():
             player_number = 2
         while self.turn != player_number:
             self.lock.wait()
+            if self.stopped:
+                break
         move = Move(Coord.from_array(f), Coord.from_array(t))
         self.board.make_move(player_number, move)
         self.turn = self.turn%2 + 1
@@ -117,7 +123,10 @@ class Game():
         while self.turn != player_number:
             yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
             self.lock.wait(timeout=25)
+            if self.stopped:
+                break
         yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
+        self.lock.notify()
         self.lock.release()
 
     def room_JSON(self, player):
