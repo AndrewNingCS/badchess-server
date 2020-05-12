@@ -183,6 +183,7 @@ class Server():
 
         def SSE():
             self.game_by_game_id[gid].wait_for_move(player_id)
+            yield 'data: ' + json.dumps(self.game_by_game_id[gid].to_JSON()) + '\n\n'
             yield 'event: close\n'
             yield 'data: connection closed\n\n'
 
