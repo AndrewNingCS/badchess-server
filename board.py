@@ -60,7 +60,7 @@ class Board():
 
     # given a move, return if the move is valid. Will also check if the move
     # is a castle move.
-    def validate_move(self, player, move):
+    def validate_move(self, player_number, move):
         piece = self.board[move.f.y][move.f.x]
 
         # is there a piece there?
@@ -72,7 +72,7 @@ class Board():
             piece.is_castle(self.board, move)
 
         # does the player and piece colour match up?
-        if (piece.is_white and player == 2) or (not piece.is_white and player == 1):
+        if (piece.is_white and player_number == 2) or (not piece.is_white and player_number == 1):
             return False
         
         # get all possible moves of piece

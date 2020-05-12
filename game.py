@@ -107,7 +107,8 @@ class Game():
             if self.stopped:
                 break
         move = Move(Coord.from_array(f), Coord.from_array(t))
-        self.board.make_move(player_number, move)
+        if self.board.validate_move(player_number, move):
+            self.board.make_move(player_number, move)
         self.turn = self.turn%2 + 1
         self.lock.notify()
         self.lock.release()
