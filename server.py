@@ -60,6 +60,10 @@ class Server():
 
             # room code exists, return the game ID and player2 ID
             game = self.game_by_room_code[room_code]
+            # save game and player ID in the current session
+            log(f"Saving IDs for player 2 with sid: {cherrypy.session.id}")
+            cherrypy.session["gameID"] = game.game_id
+            cherrypy.session["playerID"] = game.player2_id
             return game.join_two_player_game()
 
     @cherrypy.expose
@@ -75,6 +79,7 @@ class Server():
             player_id = data["playerID"]
 
             # save game and player ID in the current session
+            log(f"Saving IDs for player 1 with sid: {cherrypy.session.id}")
             cherrypy.session["gameID"] = gid
             cherrypy.session["playerID"] = player_id
 
@@ -95,6 +100,7 @@ class Server():
             player_id = data["playerID"]
 
             # save game and player ID in the current session
+            log(f"Saving IDs for player 2 with sid: {cherrypy.session.id}")
             cherrypy.session["gameID"] = gid
             cherrypy.session["playerID"] = player_id
 
@@ -115,6 +121,7 @@ class Server():
             player_id = data["playerID"]
 
             # save game and player ID in the current session
+            log(f"Saving IDs for player 1 with sid: {cherrypy.session.id}")
             cherrypy.session["gameID"] = gid
             cherrypy.session["playerID"] = player_id
 
@@ -172,7 +179,7 @@ class Server():
         cherrypy.response.headers['Cache-Control'] = 'no-cache'
         gid = cherrypy.session.get("gameID")
         player_id = cherrypy.session.get("playerID")
-        log(f"Waiting for move. GID: {gid}, PID: {player_id}")
+        log(f"Waiting for move. GID: {gid}, PID: {player_id}, SID: {cherrypy.session.id}")
 
         def SSE():
             self.game_by_game_id[gid].wait_for_move(player_id)
