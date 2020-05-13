@@ -111,7 +111,7 @@ class Game():
         move = Move(Coord.from_array(f), Coord.from_array(t))
         if self.board.validate_move(player_number, move):
             self.board.make_move(player_number, move)
-            if self.board.game_over:
+            if self.board.game_over():
                 self.game_over = True
                 self.winner = self.turn
             self.turn = self.turn%2 + 1
@@ -157,7 +157,7 @@ class Game():
         json["board"] = self.board.to_JSON()
         json["possibleMoves"] = self.board.possible_moves_JSON()
         json["deadPieces"] = self.board.dead_pieces_JSON()
-        json["winner"] = self.winner
+        json["winner"] = self.winner if self.game_over else 0
 
         return json
 
