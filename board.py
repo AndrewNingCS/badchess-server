@@ -123,7 +123,7 @@ class Board():
             if player == 1 and move.t.y == 0:
                 self.board[move.t.y][move.t.x] = Queen(move.t, True)
             elif player == 2 and move.t.y == self.height - 1:
-                self.board[move.t.y][move.t.x] = Queen(move.t, True)
+                self.board[move.t.y][move.t.x] = Queen(move.t, False)
 
     # Returns true if player one is in checkmate (loses)
     def player_one_in_checkmate(self):
