@@ -157,7 +157,7 @@ class Game():
         json["board"] = self.board.to_JSON()
         json["possibleMoves"] = self.board.possible_moves_JSON()
         json["deadPieces"] = self.board.dead_pieces_JSON()
-        json["winner"] = self.winner
+        json["winner"] = self.winner if self.game_over else 0
 
         return json
 
