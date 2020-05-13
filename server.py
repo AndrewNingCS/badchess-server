@@ -182,7 +182,8 @@ class Server():
         cherrypy.response.headers['Cache-Control'] = 'no-cache'
         gid = cherrypy.session.get("gameID")
         player_id = cherrypy.session.get("playerID")
-        log(f"Waiting for move. GID: {gid}, PID: {player_id}, SID: {cherrypy.session.id}")
+        pnum = self.game_by_game_id[gid].get_player_number_from_id(player_id)
+        log(f"Player {pnum} waiting for move. GID: {gid}, PID: {player_id}, SID: {cherrypy.session.id}")
 
         def SSE():
             yield from self.game_by_game_id[gid].wait_for_move(player_id)

@@ -73,9 +73,13 @@ class Game():
         if player_id == self.player1_id:
             log("Disconnecting Player 1")
             self.player1_connected = False
+            with self.lock:
+                self.lock.notifyAll()
         elif player_id == self.player2_id:
             log("Disconnecting Player 2")
             self.player2_connected = False
+            with self.lock:
+                self.lock.notifyAll()
         else:
             log("Disconnect Error: Player ID not found")
 
@@ -84,6 +88,8 @@ class Game():
 
     def stop(self):
         self.stopped = True
+        with self.lock:
+            self.lock.notifyAll()
 
     # Starts the game in single player mode
     def start_single_player_game(self):
