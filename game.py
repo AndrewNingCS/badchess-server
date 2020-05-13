@@ -140,6 +140,7 @@ class Game():
             yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
             self.lock.wait(timeout=25)
             if self.stopped:
+                log(f"Game ended, stopping wait for move from player: {player_number}")
                 break
         yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
         self.lock.notify()
