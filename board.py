@@ -142,6 +142,15 @@ class Board():
     def player_two_in_check(self):
         pass
 
+    def game_over(self):
+        for p in self.white_dead:
+            if p.name == "King":
+                return True
+        for p in self.black_dead:
+            if p.name == "King":
+                return True
+        return False
+
     def possible_moves_JSON(self):
         json = []
         for row in self.board:

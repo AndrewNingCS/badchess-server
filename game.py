@@ -24,6 +24,8 @@ class Game():
         self.lock = Condition()
         self.player1_connected = False
         self.player2_connected = False
+        self.game_over = False
+        self.winner = 0
 
         self.player_ids = [] # used so that players do not have the same IDs
         self.player1_id = self.create_player_id()
@@ -109,6 +111,9 @@ class Game():
         move = Move(Coord.from_array(f), Coord.from_array(t))
         if self.board.validate_move(player_number, move):
             self.board.make_move(player_number, move)
+            if self.board.game_over:
+                self.game_over = True
+                self.winner = self.turn
             self.turn = self.turn%2 + 1
         self.lock.notify()
         self.lock.release()
@@ -152,6 +157,7 @@ class Game():
         json["board"] = self.board.to_JSON()
         json["possibleMoves"] = self.board.possible_moves_JSON()
         json["deadPieces"] = self.board.dead_pieces_JSON()
+        json["winner"] = self.winner
 
         return json
 
