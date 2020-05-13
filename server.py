@@ -142,7 +142,8 @@ class Server():
             player_id = data["playerID"]
 
             # if no player is left, remove from memory
-            log(f"Disconnecting PID: {player_id} from GID: {gid}")
+            pnum = self.game_by_game_id[gid].get_player_number_from_id(player_id)
+            log(f"Disconnecting Player: {pnum} PID: {player_id} from GID: {gid}")
             self.game_by_game_id[gid].disconnect(player_id)
             if not self.game_by_game_id[gid].any_connected():
                 room_code = self.game_by_game_id[gid].room_code

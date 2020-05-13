@@ -6,6 +6,7 @@ from pieces import Piece
 from board import Board
 from utility import Coord, Move
 from AI import AI
+from log import log
 
 
 class Game():
@@ -30,6 +31,13 @@ class Game():
         self.player_ids = [] # used so that players do not have the same IDs
         self.player1_id = self.create_player_id()
         self.player2_id = self.create_player_id()
+
+    def get_player_number_from_id(self, id):
+        if id == self.player1_id:
+            return 1
+        elif id == self.player2_id:
+            return 2
+        log("Player Number Error")
 
     # Sets up the two player game. Returns a json with the necessary info
     def create_two_player_game(self):
@@ -63,9 +71,13 @@ class Game():
     # Disconnects a player given by the ID. 
     def disconnect(self, player_id):
         if player_id == self.player1_id:
+            log("Disconnecting Player 1")
             self.player1_connected = False
-        else:
+        elif player_id == self.player2_id:
+            log("Disconnecting Player 2")
             self.player2_connected = False
+        else:
+            log("Disconnect Error: Player ID not found")
 
     def any_connected(self):
         return self.player1_connected or self.player2_connected
@@ -99,11 +111,7 @@ class Game():
     def make_move(self, player_id, f, t):
         # check player_id parameters
         self.lock.acquire()
-        player_number = 0
-        if player_id == self.player1_id:
-            player_number = 1
-        else:
-            player_number = 2
+        player_number = self.get_player_number_from_id(player_id)
         while self.turn != player_number:
             self.lock.wait()
             if self.stopped:
@@ -121,11 +129,7 @@ class Game():
     # generator function
     def wait_for_move(self, player_id):
         self.lock.acquire()
-        player_number = 0
-        if player_id == self.player1_id:
-            player_number = 1
-        else:
-            player_number = 2
+        player_number = self.get_player_number_from_id(player_id)
         while self.turn != player_number:
             yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
             self.lock.wait(timeout=25)
