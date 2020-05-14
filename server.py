@@ -271,7 +271,6 @@ if __name__ == "__main__":
         "server.socket_host": "0.0.0.0",
         "server.socket_port": int(os.environ.get("PORT", "8080")),
         "cors.expose.on": True,
-        "tools.CORS.on": True,
         "response.stream": True,
         "tools.sessions.on": True,
         "tools.response_headers.on": True,
