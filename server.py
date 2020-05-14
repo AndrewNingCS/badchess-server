@@ -207,7 +207,6 @@ class Server():
 
     @cherrypy.expose
     def wait_for_move(self):
-        cherrypy.tools.sessions.locking = 'explicit'
         cherrypy.session.acquire_lock()
 
         cherrypy.response.headers['Content-Type'] = 'text/event-stream;charset=utf-8'
@@ -238,7 +237,7 @@ class Server():
             yield 'data: connection closed\n\n'
             game.lock.notify()
             game.lock.release()
-            cherrypy.session.acquire_lock()
+            cherrypy.session.release_lock()
 
         cherrypy.session.release_lock()
 
