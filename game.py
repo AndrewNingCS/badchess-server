@@ -139,7 +139,9 @@ class Game():
         player_number = self.get_player_number_from_id(player_id)
         while self.turn != player_number:
             yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
+            log(f"Thread from player: {player_number} sleeping. zzz")
             self.lock.wait(timeout=25)
+            log(f"Thread from player: {player_number} woke up!")
             if self.stopped:
                 log(f"Game ended, stopping wait for move from player: {player_number}")
                 break
