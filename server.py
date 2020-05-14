@@ -137,7 +137,6 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             log("LEAVE GAME OPTIONS REQUEST RECEIVED")
             cherrypy_cors.preflight(allowed_methods=['POST'])
-            cherrypy.response.headers['Access-Control-Allow-Origin']  = 'http://localhost:3000,https://badgames-xyz.github.io/badchess'
         elif cherrypy.request.method == 'POST':
             log("LEAVE GAME POST REQUEST RECEIVED")
             # WAIT JSON object

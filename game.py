@@ -73,11 +73,13 @@ class Game():
         if player_id == self.player1_id:
             log("Disconnecting Player 1")
             self.player1_connected = False
+            self.stopped = True
             with self.lock:
                 self.lock.notifyAll()
         elif player_id == self.player2_id:
             log("Disconnecting Player 2")
             self.player2_connected = False
+            self.stopped = True
             with self.lock:
                 self.lock.notifyAll()
         else:
