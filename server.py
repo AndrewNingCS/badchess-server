@@ -137,7 +137,7 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             log("LEAVE GAME OPTIONS REQUEST RECEIVED")
             cherrypy_cors.preflight(allowed_methods=['POST'])
-        if cherrypy.request.method == 'POST':
+        elif cherrypy.request.method == 'POST':
             log("LEAVE GAME POST REQUEST RECEIVED")
             # WAIT JSON object
             data = cherrypy.request.json
@@ -154,6 +154,8 @@ class Server():
                 game = self.game_by_game_id.pop(gid)
                 self.game_by_room_code.pop(room_code)
                 game.stop()
+        else:
+            log(f"LEAVE GAME {cherrypy.request.method} REQUEST RECEIVED")
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
