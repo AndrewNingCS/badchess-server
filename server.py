@@ -48,6 +48,8 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             # find game with that ID
             data = cherrypy.request.json
             room_code = data["roomCode"]
@@ -64,6 +66,8 @@ class Server():
             log(f"Saving IDs for player 2 with sid: {cherrypy.session.id}")
             cherrypy.session["gameID"] = game.game_id
             cherrypy.session["playerID"] = game.player2_id
+
+            cherrypy.session.release_lock()
             return game.join_two_player_game()
 
     @cherrypy.expose
@@ -73,6 +77,8 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
@@ -85,6 +91,8 @@ class Server():
 
             # returns a JOINED JSON object
             ret = self.game_by_game_id[gid].has_player_joined(player_id)
+
+            cherrypy.session.release_lock()
             return ret
 
     @cherrypy.expose
@@ -94,6 +102,8 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
@@ -106,6 +116,8 @@ class Server():
 
             # returns a GAME STATE JSON object
             ret = self.game_by_game_id[gid].to_JSON()
+
+            cherrypy.session.release_lock()
             return ret
 
     @cherrypy.expose
@@ -115,6 +127,8 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
@@ -128,6 +142,8 @@ class Server():
             # returns a GAME STATE JSON object
             self.game_by_game_id[gid].start_two_player_game(player_id)
             ret = self.game_by_game_id[gid].to_JSON()
+
+            cherrypy.session.release_lock()
             return ret
 
     @cherrypy.expose
@@ -138,6 +154,8 @@ class Server():
             log("LEAVE GAME OPTIONS REQUEST RECEIVED")
             cherrypy_cors.preflight(allowed_methods=['POST'])
         elif cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             log("LEAVE GAME POST REQUEST RECEIVED")
             # WAIT JSON object
             data = cherrypy.request.json
@@ -154,6 +172,8 @@ class Server():
                 game = self.game_by_game_id.pop(gid)
                 self.game_by_room_code.pop(room_code)
                 game.stop()
+
+            cherrypy.session.release_lock()
         else:
             log(f"LEAVE GAME {cherrypy.request.method} REQUEST RECEIVED")
 
@@ -165,6 +185,8 @@ class Server():
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
             data = cherrypy.request.json
             gid = data["gameID"]
             player_id = data["playerID"]
@@ -179,23 +201,46 @@ class Server():
             self.game_by_game_id[gid].make_move(player_id, move_from, move_to)
 
             ret = self.game_by_game_id[gid].to_JSON()
+
+            cherrypy.session.release_lock()
             return ret
 
     @cherrypy.expose
     def wait_for_move(self):
-        # get the game and player id saved in the current session
+        cherrypy.tools.sessions.locking = 'explicit'
+        cherrypy.session.acquire_lock()
+
         cherrypy.response.headers['Content-Type'] = 'text/event-stream;charset=utf-8'
         cherrypy.response.headers['Cache-Control'] = 'no-cache'
+
+        # get data saved in session
         gid = cherrypy.session.get("gameID")
-        player_id = cherrypy.session.get("playerID")
-        pnum = self.game_by_game_id[gid].get_player_number_from_id(player_id)
-        log(f"Player {pnum} waiting for move. GID: {gid}, PID: {player_id}, SID: {cherrypy.session.id}")
+        pid = cherrypy.session.get("playerID")
+        game = self.game_by_game_id[gid]
+        pnum = game.get_player_number_from_id(pid)
+        log(f"Player {pnum} waiting for move. GID: {gid}, PID: {pid}, SID: {cherrypy.session.id}")
 
         def SSE():
-            yield from self.game_by_game_id[gid].wait_for_move(player_id)
-            yield 'data: ' + json.dumps(self.game_by_game_id[gid].to_JSON()) + '\n\n'
+            cherrypy.session.acquire_lock()
+            game.lock.acquire()
+            while game.turn != pnum:
+                yield 'data: ' + json.dumps(game.to_JSON()) + '\n\n'
+                log(f"Thread from player: {pnum} sleeping. zzz")
+                cherrypy.session.release_lock()
+                game.lock.wait(timeout=25)
+                cherrypy.session.acquire_lock()
+                log(f"Thread from player: {pnum} woke up!")
+                if game.stopped:
+                    log(f"Game ended, stopping wait for move from player: {pnum}")
+                    break
+            yield 'data: ' + json.dumps(game.to_JSON()) + '\n\n'
             yield 'event: close\n'
             yield 'data: connection closed\n\n'
+            game.lock.notify()
+            game.lock.release()
+            cherrypy.session.acquire_lock()
+
+        cherrypy.session.release_lock()
 
         return SSE()
 
@@ -272,6 +317,7 @@ if __name__ == "__main__":
         "cors.expose.on": True,
         "response.stream": True,
         "tools.sessions.on": True,
+        "tools.sessions.locking": "explicit",
         "tools.response_headers.on": True,
         "tools.response_headers.headers": [
             ("Access-Control-Allow-Origin", "http://localhost:3000,https://badgames-xyz.github.io/badchess"),
