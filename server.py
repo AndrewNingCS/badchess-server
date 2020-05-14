@@ -133,10 +133,12 @@ class Server():
     @cherrypy.expose
     @cherrypy.tools.json_in()
     def leave_two_player_game(self):
-        log("Leave game called")
+        log("LEAVE GAME CALLED")
         if cherrypy.request.method == 'OPTIONS':
+            log("LEAVE GAME OPTIONS REQUEST RECEIVED")
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
+            log("LEAVE GAME POST REQUEST RECEIVED")
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
