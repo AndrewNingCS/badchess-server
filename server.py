@@ -197,7 +197,7 @@ class Server():
             yield 'event: close\n'
             yield 'data: connection closed\n\n'
 
-        return SSE()
+        yield from SSE()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
