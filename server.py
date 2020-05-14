@@ -133,6 +133,7 @@ class Server():
     @cherrypy.expose
     @cherrypy.tools.json_in()
     def leave_two_player_game(self):
+        log("Leave game called")
         if cherrypy.request.method == 'OPTIONS':
             cherrypy_cors.preflight(allowed_methods=['POST'])
         if cherrypy.request.method == 'POST':
@@ -146,6 +147,7 @@ class Server():
             log(f"Disconnecting Player: {pnum} PID: {player_id} from GID: {gid}")
             self.game_by_game_id[gid].disconnect(player_id)
             if not self.game_by_game_id[gid].any_connected():
+                log("No players connected, removing game from server.")
                 room_code = self.game_by_game_id[gid].room_code
                 game = self.game_by_game_id.pop(gid)
                 self.game_by_room_code.pop(room_code)

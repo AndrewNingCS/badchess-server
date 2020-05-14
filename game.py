@@ -88,6 +88,7 @@ class Game():
 
     def stop(self):
         self.stopped = True
+        log(f"Stopping game with GID: {self.game_id}")
         with self.lock:
             self.lock.notifyAll()
 
