@@ -62,10 +62,7 @@ class Server():
 
             # room code exists, return the game ID and player2 ID
             game = self.game_by_room_code[room_code]
-            # save game and player ID in the current session
-            log(f"Saving IDs for player 2 with sid: {cherrypy.session.id}")
-            cherrypy.session["gameID"] = game.game_id
-            cherrypy.session["playerID"] = game.player2_id
+            self.save_session_data(game.game_id, game.player2_id)
 
             cherrypy.session.release_lock()
             return game.join_two_player_game()
@@ -82,15 +79,13 @@ class Server():
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
-            player_id = data["playerID"]
+            pid = data["playerID"]
 
             # save game and player ID in the current session
-            log(f"Saving IDs for player 1 with sid: {cherrypy.session.id}")
-            cherrypy.session["gameID"] = gid
-            cherrypy.session["playerID"] = player_id
+            self.save_session_data(gid, pid)
 
             # returns a JOINED JSON object
-            ret = self.game_by_game_id[gid].has_player_joined(player_id)
+            ret = self.game_by_game_id[gid].has_player_joined(pid)
 
             cherrypy.session.release_lock()
             return ret
@@ -107,12 +102,10 @@ class Server():
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
-            player_id = data["playerID"]
+            pid = data["playerID"]
 
             # save game and player ID in the current session
-            log(f"Saving IDs for player 2 with sid: {cherrypy.session.id}")
-            cherrypy.session["gameID"] = gid
-            cherrypy.session["playerID"] = player_id
+            self.save_session_data(gid, pid)
 
             # returns a GAME STATE JSON object
             ret = self.game_by_game_id[gid].to_JSON()
@@ -132,15 +125,13 @@ class Server():
             # WAIT JSON object
             data = cherrypy.request.json
             gid = data["gameID"]
-            player_id = data["playerID"]
+            pid = data["playerID"]
 
             # save game and player ID in the current session
-            log(f"Saving IDs for player 1 with sid: {cherrypy.session.id}")
-            cherrypy.session["gameID"] = gid
-            cherrypy.session["playerID"] = player_id
+            self.save_session_data(gid, pid)
 
             # returns a GAME STATE JSON object
-            self.game_by_game_id[gid].start_two_player_game(player_id)
+            self.game_by_game_id[gid].start_two_player_game(pid)
             ret = self.game_by_game_id[gid].to_JSON()
 
             cherrypy.session.release_lock()
@@ -189,16 +180,14 @@ class Server():
 
             data = cherrypy.request.json
             gid = data["gameID"]
-            player_id = data["playerID"]
+            pid = data["playerID"]
             move_from = data["moveFrom"]
             move_to = data["moveTo"]
 
-            # save game and player ID in the current session
-            cherrypy.session["gameID"] = gid
-            cherrypy.session["playerID"] = player_id
+            self.save_session_data(gid, pid)
 
             # TODO: check if game exists
-            self.game_by_game_id[gid].make_move(player_id, move_from, move_to)
+            self.game_by_game_id[gid].make_move(pid, move_from, move_to)
 
             ret = self.game_by_game_id[gid].to_JSON()
 
@@ -242,6 +231,30 @@ class Server():
         cherrypy.session.release_lock()
 
         return SSE()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def get_two_player_game_data(self):
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+            cherrypy.session.acquire_lock()
+
+            # WAIT JSON object
+            data = cherrypy.request.json
+            gid = data["gameID"]
+            pid = data["playerID"]
+
+            # save game and player ID in the current session
+            game = self.game_by_game_id[gid]
+            self.save_session_data(gid, pid)
+
+            # returns a GAME STATE JSON object
+            ret = game.to_JSON()
+
+            cherrypy.session.release_lock()
+            return ret
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -304,6 +317,12 @@ class Server():
             else:
                 data["gameExists"] = "False"
             return data
+
+    def save_session_data(self, gid, pid):
+        pnum = self.game_by_game_id[gid].get_player_number_from_id(pid)
+        log(f"Saving IDs for player {pnum} with sid: {cherrypy.session.id}")
+        cherrypy.session["gameID"] = gid
+        cherrypy.session["playerID"] = pid
 
     # Returns a unique int to use as a game_id
     def create_game_id(self):
