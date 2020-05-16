@@ -259,6 +259,22 @@ class Server():
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
+    def leave_single_player_game(self):
+        if cherrypy.request.method == 'OPTIONS':
+            cherrypy_cors.preflight(allowed_methods=['POST'])
+        if cherrypy.request.method == 'POST':
+        # json input should have game_id
+            data = cherrypy.request.json
+            gid = data["gameID"]
+
+            if gid in self.game_by_game_id:
+                log(f"Leaving single player game with GID: {gid} from server.")
+                self.game_by_game_id.pop(gid)
+            else:
+                log(f"ERROR: GID: {gid} not found when trying to leave single player game.")
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def single_player_move(self):
         if cherrypy.request.method == 'OPTIONS':
