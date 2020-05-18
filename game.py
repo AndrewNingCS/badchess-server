@@ -110,9 +110,18 @@ class Game():
         self.board.make_move(1, move)
         self.invalid_move = False
 
+        if self.board.game_over():
+            self.game_over = True
+            self.winner = 1
+            return
+
         # AI now makes a move
         AI_move = self.AI.make_move(self.board.board) # TODO: what if nothing is returned
         self.board.make_move(2, AI_move)
+
+        if self.board.game_over():
+            self.game_over = True
+            self.winner = 2
 
         # Returns with AI move, so still player 1's turn
         self.turn = 1
