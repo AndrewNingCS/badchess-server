@@ -31,6 +31,8 @@ class Game():
         self.player_ids = [] # used so that players do not have the same IDs
         self.player1_id = self.create_player_id()
         self.player2_id = self.create_player_id()
+        self.player1_name = "Player 1"
+        self.player2_name = "Player 2"
 
     def get_player_number_from_id(self, id):
         if id == self.player1_id:
@@ -66,6 +68,13 @@ class Game():
             has_joined = self.player1_connected
         return {
             "joined": has_joined
+        }
+
+    # returns a STARTED JSON object
+    def has_game_started(self, player_id):
+        # TODO: do something with player id?
+        return {
+            "gameStarted": self.started
         }
 
     # Disconnects a player given by the ID. 

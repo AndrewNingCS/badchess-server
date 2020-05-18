@@ -108,7 +108,7 @@ class Server():
             self.save_session_data(gid, pid)
 
             # returns a GAME STATE JSON object
-            ret = self.game_by_game_id[gid].to_JSON()
+            ret = self.game_by_game_id[gid].has_game_started(pid)
 
             cherrypy.session.release_lock()
             return ret
