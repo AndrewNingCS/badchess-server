@@ -59,6 +59,9 @@ class Game():
     def start_two_player_game(self, player_id):
         # TODO: should only player 1 be able to start?
         self.started = True
+        return {
+            "gameStarted": self.started
+        }
 
     # returns a JOINED JSON object
     def has_player_joined(self, player_id):
