@@ -9,6 +9,12 @@ class Coord():
     def from_array(cls, arr):
         return cls(arr[0], arr[1])
 
+    def flip(self, w, h):
+        self.y = h - self.y - 1
+
+    def copy(self):
+        return Coord(self.x, self.y)
+
     def up(self):
         return Coord(self.x, self.y-1)
 
@@ -55,6 +61,10 @@ class Move():
 
     def log(self):
         print(f"{self.f.to_string()} to {self.t.to_string()}")
+
+    def flip(self, w, h):
+        self.f.flip(w, h)
+        self.t.flip(w, h)
 
     def __eq__(self, m):
         if m is None:

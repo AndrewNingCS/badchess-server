@@ -147,6 +147,8 @@ class Game():
             if self.stopped:
                 break
         move = Move(Coord.from_array(f), Coord.from_array(t))
+        if player_id == self.player2_id:
+            move.flip(self.board.width, self.board.height)
         if self.board.validate_move(player_number, move):
             self.board.make_move(player_number, move)
             if self.board.game_over():
@@ -161,14 +163,14 @@ class Game():
         self.lock.acquire()
         player_number = self.get_player_number_from_id(player_id)
         while self.turn != player_number:
-            yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
+            yield 'data: ' + dumps(self.to_JSON(player_id)) + '\n\n'
             log(f"Thread from player: {player_number} sleeping. zzz")
             self.lock.wait(timeout=25)
             log(f"Thread from player: {player_number} woke up!")
             if self.stopped:
                 log(f"Game ended, stopping wait for move from player: {player_number}")
                 break
-        yield 'data: ' + dumps(self.to_JSON()) + '\n\n'
+        yield 'data: ' + dumps(self.to_JSON(player_id)) + '\n\n'
         self.lock.notify()
         self.lock.release()
 
@@ -183,7 +185,7 @@ class Game():
 
         return ret
 
-    def to_JSON(self):
+    def to_JSON(self, player_id=None):
         json = {}
         json["gameStarted"] = self.started
         if not self.started: # if game has not started, return
@@ -191,10 +193,17 @@ class Game():
         json["gameID"] = self.game_id
         json["invalidMove"] = self.invalid_move
         json["playerTurn"] = self.turn
-        json["board"] = self.board.to_JSON()
-        json["possibleMoves"] = self.board.possible_moves_JSON()
         json["deadPieces"] = self.board.dead_pieces_JSON()
         json["winner"] = self.winner if self.game_over else 0
+
+        # if player_id is that of player 2's, then flip the board
+        if player_id is not None and player_id == self.player2_id:
+            # flip the board
+            json["board"] = self.board.to_JSON(True)
+            json["possibleMoves"] = self.board.possible_moves_JSON(True)
+        else:
+            json["board"] = self.board.to_JSON()
+            json["possibleMoves"] = self.board.possible_moves_JSON()
 
         return json
 

@@ -58,9 +58,13 @@ class Board():
             Rook(Coord(7, 7), True)
         ]]
 
+    def log(self):
+        for row in self.board:
+            log([p.to_JSON() if p is not None else "None" for p in row])
+
     # given a move, return if the move is valid. Will also check if the move
     # is a castle move.
-    def validate_move(self, player_number, move):
+    def validate_move(self, player, move):
         piece = self.board[move.f.y][move.f.x]
 
         # is there a piece there?
@@ -72,7 +76,7 @@ class Board():
             piece.is_castle(self.board, move)
 
         # does the player and piece colour match up?
-        if (piece.is_white and player_number == 2) or (not piece.is_white and player_number == 1):
+        if (piece.is_white and player == 2) or (not piece.is_white and player == 1):
             return False
         
         # get all possible moves of piece
@@ -84,9 +88,8 @@ class Board():
         return False
 
 
+    # Assume the move has been validated already
     def make_move(self, player, move):
-        # assume the move has been validated
-
         # if the move is the king rook castling, do it first
         if move.is_castle:
             if player == 1:
@@ -117,6 +120,7 @@ class Board():
         # update the piece's new position
         self.board[move.t.y][move.t.x].update_pos(move.t)
 
+
         # if the piece is a pawn and it hit the other end, it becomes a Queen
         # TODO: Real rules say the player gets to choose the piece it becomes
         if isinstance(self.board[move.t.y][move.t.x], Pawn):
@@ -125,20 +129,19 @@ class Board():
             elif player == 2 and move.t.y == self.height - 1:
                 self.board[move.t.y][move.t.x] = Queen(move.t, False)
 
-    # Returns true if player one is in checkmate (loses)
+    # TODO: Returns true if player one is in checkmate (loses)
     def player_one_in_checkmate(self):
         pass
 
-    # Returns true if player two is in checkmate (loses)
+    # TODO: Returns true if player two is in checkmate (loses)
     def player_two_in_checkmate(self):
         pass
 
-    # Returns true if player one is in check (king under attack)
+    # TODO: Returns true if player one is in check (king under attack)
     def player_one_in_check(self):
-        
         pass
 
-    # Returns true if player two is in check (king under attack)
+    # TODO: Returns true if player two is in check (king under attack)
     def player_two_in_check(self):
         pass
 
@@ -151,7 +154,7 @@ class Board():
                 return True
         return False
 
-    def possible_moves_JSON(self):
+    def possible_moves_JSON(self, flip=False):
         json = []
         for row in self.board:
             t = []
@@ -160,9 +163,13 @@ class Board():
                 if piece is not None:
                     moves = piece.possible_moves(self.board)
                     for m in moves:
+                        if flip:
+                            m.flip(self.height, self.width)
                         e.append([m.t.x, m.t.y])
                 t.append(e)
             json.append(t)
+        if flip:
+            json.reverse()
 
         return json
 
@@ -175,7 +182,9 @@ class Board():
         return json
 
 
-    def to_JSON(self):
+    def to_JSON(self, flip=False):
         json = [[p.to_JSON() if p is not None else ["N", False] for p in row] for row in self.board]
+        if flip:
+            json.reverse()
 
         return json

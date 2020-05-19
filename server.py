@@ -188,8 +188,7 @@ class Server():
             # TODO: check if game exists
             self.game_by_game_id[gid].make_move(pid, move_from, move_to)
 
-            ret = self.game_by_game_id[gid].to_JSON()
-
+            ret = self.game_by_game_id[gid].to_JSON(pid)
             cherrypy.session.release_lock()
             return ret
 
@@ -211,7 +210,7 @@ class Server():
             cherrypy.session.acquire_lock()
             game.lock.acquire()
             while game.turn != pnum:
-                yield 'data: ' + json.dumps(game.to_JSON()) + '\n\n'
+                yield 'data: ' + json.dumps(game.to_JSON(pid)) + '\n\n'
                 log(f"Thread from player: {pnum} sleeping. zzz")
                 cherrypy.session.release_lock()
                 game.lock.wait(timeout=25)
@@ -220,7 +219,7 @@ class Server():
                 if game.stopped:
                     log(f"Game ended, stopping wait for move from player: {pnum}")
                     break
-            yield 'data: ' + json.dumps(game.to_JSON()) + '\n\n'
+            yield 'data: ' + json.dumps(game.to_JSON(pid)) + '\n\n'
             yield 'event: close\n'
             yield 'data: connection closed\n\n'
             game.lock.notify()
@@ -250,7 +249,7 @@ class Server():
             self.save_session_data(gid, pid)
 
             # returns a GAME STATE JSON object
-            ret = game.to_JSON()
+            ret = game.to_JSON(pid)
 
             cherrypy.session.release_lock()
             return ret

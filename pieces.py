@@ -29,11 +29,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white: # hit enemy piece
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white: # hit own piece
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.left()
 
         # go right
@@ -41,11 +41,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.right()
 
         # go up
@@ -53,11 +53,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.up()
 
         # down
@@ -65,11 +65,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.down()
 
         return moves
@@ -86,11 +86,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.left().up()
 
         # left down diagonal
@@ -98,11 +98,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.left().down()
 
         # right up diagonal
@@ -110,11 +110,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.right().up()
 
         # right down diagonal
@@ -122,11 +122,11 @@ class Piece():
         while cur.in_grid(w, h):
             has_piece = board[cur.y][cur.x] is not None
             if has_piece and board[cur.y][cur.x].is_white != self.is_white:
-                moves.append(Move(self.pos, cur, board[cur.y][cur.x]))
+                moves.append(Move(self.pos.copy(), cur, board[cur.y][cur.x]))
                 break
             if has_piece and board[cur.y][cur.x].is_white == self.is_white:
                 break
-            moves.append(Move(self.pos, cur))
+            moves.append(Move(self.pos.copy(), cur))
             cur = cur.right().down()
 
         return moves
@@ -157,29 +157,30 @@ class Pawn(Piece):
 
         # check if anything is in front of the pawn
         if move_one.in_grid(w, h) and board[move_one.y][move_one.x] is None:
-            moves.append(Move(self.pos, move_one))
+            moves.append(Move(self.pos.copy(), move_one))
             if self.pos == self.initial_pos:
                 # if pawn is in inital position, and nothing in front, we check two spaces forward
                 if move_two.in_grid(w, h) and board[move_two.y][move_two.x] is None:
-                    moves.append(Move(self.pos, move_two))
+                    moves.append(Move(self.pos.copy(), move_two))
 
         # check the left diagonal. Must be occupied by enemy piece
         if dl.in_grid(w, h) and board[dl.y][dl.x] is not None:
             diag_left_enemy = not board[dl.y][dl.x].is_white == self.is_white
             if diag_left_enemy:
-                moves.append(Move(self.pos, dl, board[dl.y][dl.x]))
+                moves.append(Move(self.pos.copy(), dl, board[dl.y][dl.x]))
         
         # check the right diagonal. Must be occupied by enemy piece
         if dr.in_grid(w, h) and board[dr.y][dr.x] is not None:
             diag_right_enemy = not board[dr.y][dr.x].is_white == self.is_white
             if diag_right_enemy:
-                moves.append(Move(self.pos, dr, board[dr.y][dr.x]))
+                moves.append(Move(self.pos.copy(), dr, board[dr.y][dr.x]))
 
         return moves
         
 
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["P", self.is_white]
@@ -199,7 +200,8 @@ class Rook(Piece):
         return super().possible_straight_moves(board)
 
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["R", self.is_white]
@@ -229,15 +231,16 @@ class Horse(Piece):
         for m in possible:
             if m.in_grid(w, h):
                 if board[m.y][m.x] is None:
-                    moves.append(Move(self.pos, m))
+                    moves.append(Move(self.pos.copy(), m))
                 elif board[m.y][m.x].is_white != self.is_white:
-                    moves.append(Move(self.pos, m, board[m.y][m.x]))
+                    moves.append(Move(self.pos.copy(), m, board[m.y][m.x]))
 
         return moves
 
 
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["H", self.is_white]
@@ -252,7 +255,8 @@ class Bishop(Piece):
         return super().possible_diagonal_moves(occupied)
 
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["B", self.is_white]
@@ -269,7 +273,8 @@ class Queen(Piece):
         return diag_moves + straight_moves
     
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["Q", self.is_white]
@@ -305,12 +310,12 @@ class King(Piece):
         for m in possible:
             if m.in_grid(w, h):
                 if board[m.y][m.x] is None:
-                    moves.append(Move(self.pos, m))
+                    moves.append(Move(self.pos.copy(), m))
                 elif board[m.y][m.x].is_white != self.is_white:
-                    moves.append(Move(self.pos, m, board[m.y][m.x]))
+                    moves.append(Move(self.pos.copy(), m, board[m.y][m.x]))
 
         # king can also castle
-        move_castle = Move(self.pos, self.pos.right().right())
+        move_castle = Move(self.pos.copy(), self.pos.right().right())
         if self.is_castle(board, move_castle):
             moves.append(move_castle)
 
@@ -353,7 +358,8 @@ class King(Piece):
         return True
 
     def log(self):
-        log(f"{self.name} at {self.pos.to_string()}")
+        colour = "White" if self.is_white else "Black"
+        log(f"{colour} {self.name} at {self.pos.to_string()}")
 
     def to_JSON(self):
         return ["K", self.is_white]
