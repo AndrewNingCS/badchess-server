@@ -117,7 +117,8 @@ class Game():
     def increment_wait(self):
         self.cur_periods += 1
         if self.cur_periods > self.turn_limit:
-            self.stop()
+            self.stopped = True
+            log(f"Stopping game with GID: {self.game_id}")
 
     # Starts the game in single player mode
     def start_single_player_game(self):
