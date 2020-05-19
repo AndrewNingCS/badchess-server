@@ -34,6 +34,11 @@ class Game():
         self.player1_name = "Player 1"
         self.player2_name = "Player 2"
 
+        # the following is added to end inactive games
+        self.turn_sleep_period = 25 # must be < 30 per heroku limits
+        self.turn_limit = 10 # how many periods will it sleep before ending game
+        self.cur_periods = 0 # how many periods waited so far
+
     def get_player_number_from_id(self, id):
         if id == self.player1_id:
             return 1
@@ -105,6 +110,14 @@ class Game():
         log(f"Stopping game with GID: {self.game_id}")
         with self.lock:
             self.lock.notifyAll()
+
+    def start_wait(self):
+        self.cur_periods = 0
+
+    def increment_wait(self):
+        self.cur_periods += 1
+        if self.cur_periods > self.turn_limit:
+            self.stop()
 
     # Starts the game in single player mode
     def start_single_player_game(self):

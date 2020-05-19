@@ -209,14 +209,16 @@ class Server():
         def SSE():
             cherrypy.session.acquire_lock()
             game.lock.acquire()
+            game.start_wait()
             while game.turn != pnum:
                 yield 'data: ' + json.dumps(game.to_JSON(pid)) + '\n\n'
                 log(f"Thread from player: {pnum} sleeping. zzz")
                 cherrypy.session.release_lock()
                 game.lock.wait(timeout=25)
                 cherrypy.session.acquire_lock()
+                game.increment_wait()
                 log(f"Thread from player: {pnum} woke up!")
-                if game.stopped:
+                if game.stopped or game.game_over:
                     log(f"Game ended, stopping wait for move from player: {pnum}")
                     break
             yield 'data: ' + json.dumps(game.to_JSON(pid)) + '\n\n'
